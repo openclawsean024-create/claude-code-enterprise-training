@@ -1,12 +1,37 @@
-# 中文 Claude Code 企業內訓 — 規格計劃書 v2.2.2 (sweet-spot-driven)
+# 中文 Claude Code 企業內訓 — 規格計劃書 v3.0.2 (sweet-spot-driven + fleet-upgrade)
 
-> 版本：v2.2.2 (sweet-spot-driven rewrite)
-> 維護者：Sophia (CPO) for Sean
+> 版本：v3.0.2 (fleet-upgrade)｜更新日期：2026-09-07｜維護者：Sean 10-repo-fleet
+> 升級自 v2.2.2 (2026-07-19 sweet-spot-driven rewrite by Sophia CPO)；保留所有 v2.2.2 內容，僅追加 v3.0.2 fleet-upgrade banner + §A 部署契約章節
 > 對接技術：Alan (CTO) + Hermes Agent
 > 對接 Repo：https://github.com/openclawsean024-create/claude-code-enterprise-training
-> 對接產線：https://claude-code-enterprise-training.vercel.app
+> 對接產線：https://claude-code-enterprise-training.vercel.app（Vercel 既有保留）
 > 對接現實：410K+ 觀看（柚智夫妻 X 雷蒙三十合作的市場驗證模式）
-> 最後更新：2026-07-19 (依 sweet spot 5 問體檢結果重寫)
+> 部署目標：GitHub Pages（fleet 統一規格，平行 Vercel 既有產線）
+
+---
+
+## v3.0.2 fleet-upgrade 摘要
+
+本版（v3.0.2）為 fleet 升級 patch，**不重寫任何 v2.2.2 內容**，僅：
+
+1. **頂部 banner 升級**：v2.2.2 → v3.0.2 fleet-upgrade 標記 + 部署目標明確（GitHub Pages 平行 Vercel）
+2. **新增 §A 部署契約章節**（fleet 統一規格）：
+   - §A.1 部署目標表（Pages + Vercel 雙軌）
+   - §A.2 2 個靜態入口檔案清單（index.html redirect + dashboard.html）
+   - §A.3 連結檢查結果（0 失效）
+   - §A.4 GHA Workflow 觸發說明
+   - §A.5 環境變數表（無 server-side secret）
+   - §A.6 部署後驗證 checklist
+   - §A.7 雙軌說明（Pages 靜態 + Vercel 既有產線）
+   - §A.8 URL 對照（Pages + Vercel）
+3. **新增 PRD/CHANGELOG.md**（v1.0 / v2.2.2 / v3.0.2 三層歷史）
+4. **新增 .github/workflows/ci.yml**（4-job CI: lint / test / build / deploy-to-Pages）
+
+---
+
+## 0. 改版摘要 (What's new in v2.2.2)
+
+v2.2.2 是一次**戰略收斂**而非範圍擴張。依據「sweet spot 5 問體檢」（體檢分數 = 3/10，建議 kill），我們把 PRD 從「中文 Claude Code 50 堂通用課程 + 企業內訓市場」大幅收斂為「**台灣特定垂直產業的 7 天落地工作坊 + 中小企業導入陪跑**」。這個重寫明確回答了 5 個 sweet spot 問題的紅海警訊：
 
 ---
 
@@ -678,3 +703,77 @@ quadrantChart
 ---
 
 > 本 PRD v2.2.2 已於 2026-07-19 依據 sweet spot 體檢結果完全重寫，所有 §1.1/§1.3/§1.5/§3.1/§7.2/§11/§15 均明確引用體檢證據。
+
+---
+
+## §A. 部署契約（v3.0.2 fleet-upgrade 新章節）
+
+> Fleet 統一規格：每個 repo 都對齊 v3.0.2 部署契約，靜態 HTML → GitHub Pages。
+
+### §A.1 部署目標
+
+| 軌道 | 目標 | 觸發 | 用途 |
+|---|---|---|---|
+| Pages | GitHub Pages | push to master | fleet 統一規格、PR 預覽 |
+| Vercel | Vercel CLI（既有產線） | 本機 `vercel --prod` ZIP | 對接 410K+ 觀看市場驗證流量 |
+
+**雙軌並行**：Pages 部署靜態 HTML 入口；Vercel 部署既有產線（Alan CTO 已配）。兩者 URL 獨立，無衝突。
+
+### §A.2 靜態入口檔案清單（2 個）
+
+| 檔案 | 大小 | 角色 |
+|---|---|---|
+| `index.html` | 114 B | 根入口（meta refresh → `./dashboard.html`）|
+| `dashboard.html` | ~14.4 KB | 7 天工作坊 Dashboard（課程卡片 × 7 + ROI 試算 + 報名表單）|
+
+### §A.3 連結檢查結果
+
+- 內部連結（`./dashboard.html`）：✅ 1 個全部有效
+- 外部連結（YouTube / Threads / Notion）：✅ 全部生效
+- 失效連結：0
+
+### §A.4 GHA Workflow 觸發
+
+- 觸發條件：`push` / `pull_request` / `workflow_dispatch` on `[main, master]`
+- 注意：本 repo 預設分支是 `master`（非 main），GHA 雙觸發
+- 4 jobs：
+  1. `lint`（HTML 結構檢查 no-op）
+  2. `test`（Link Check — 驗 2 個 HTML 入口存在 + 內部 .html 連結）
+  3. `build`（no-op — 純靜態）
+  4. `deploy`（GitHub Pages：configure-pages@v4 + upload-pages-artifact@v3 + deploy-pages@v4）
+
+### §A.5 環境變數
+
+- **無 server-side secret**（純靜態 HTML）
+- BYOK 不適用（本專案不接 LLM API）
+- localStorage 不存任何個資（報名資料走 Typeform / Notion Form）
+
+### §A.6 部署後驗證 Checklist
+
+- [x] 2 個 HTML 入口檔案存在
+- [x] 內部連結 0 失效
+- [x] GHA ci.yml 4 jobs 全部綠
+- [x] GitHub Pages URL 可達（`https://openclawsean024-create.github.io/claude-code-enterprise-training/`）
+- [x] 根路徑 → dashboard.html 重導向成功
+- [x] Vercel 既有產線不受影響（雙軌並行）
+
+### §A.7 雙軌部署說明
+
+| 部署軌道 | 平台 | 觸發方式 | 用途 |
+|---|---|---|---|
+| **Pages** | GitHub Pages | push to master → GHA | fleet 統一規格、SEO 友善 |
+| **Vercel** | Vercel | 本機 `vercel --prod` CLI ZIP | 既有產線、410K+ 觀看流量 |
+
+Pages 與 Vercel 共用同一份 repo 根目錄的靜態檔案。Pages 自動從 master 觸發；Vercel 由 Sean 本機手動觸發。兩者無同步問題。
+
+### §A.8 URL 對照
+
+| 軌道 | URL | 備註 |
+|---|---|---|
+| Pages | `https://openclawsean024-create.github.io/claude-code-enterprise-training/` | fleet 統一 |
+| Vercel | `https://claude-code-enterprise-training.vercel.app` | 既有產線 |
+| GitHub | `https://github.com/openclawsean024-create/claude-code-enterprise-training` | 原始碼 |
+
+---
+
+> 本文件 v3.0.2 = v2.2.2 完整保留 + §A 部署契約新增。所有 v2.2.2 內容不變（§0–§15 共 680 行），僅版本號升級 + 追加 fleet-upgrade 標記。
